@@ -1,0 +1,92 @@
+[
+  {
+    "role_key": "product_manager",
+    "display_name": "Product Manager",
+    "onet_codes": ["11-2021.00"],
+    "competencies": [
+      "Product discovery and user empathy",
+      "Prioritization and roadmap tradeoffs",
+      "Metrics definition and experiment design",
+      "Stakeholder communication",
+      "Go-to-market and launch execution"
+    ],
+    "rubric_weights": {
+      "communication": 0.22,
+      "structure": 0.23,
+      "content": 0.35,
+      "logical_flow": 0.2
+    }
+  },
+  {
+    "role_key": "software_engineer",
+    "display_name": "Software Engineer",
+    "onet_codes": ["15-1252.00"],
+    "competencies": [
+      "Problem decomposition and algorithms",
+      "System design and scalability",
+      "Code quality and testing mindset",
+      "Technical communication",
+      "Collaboration and code review"
+    ],
+    "rubric_weights": {
+      "communication": 0.18,
+      "structure": 0.22,
+      "content": 0.4,
+      "logical_flow": 0.2
+    }
+  },
+  {
+    "role_key": "data_analyst",
+    "display_name": "Data Analyst",
+    "onet_codes": ["15-2051.00"],
+    "competencies": [
+      "SQL and data modeling",
+      "Metric definition and dashboards",
+      "Statistical reasoning",
+      "Business storytelling with data",
+      "Data quality and governance"
+    ],
+    "rubric_weights": {
+      "communication": 0.2,
+      "structure": 0.25,
+      "content": 0.35,
+      "logical_flow": 0.2
+    }
+  },
+  {
+    "role_key": "hr_generalist",
+    "display_name": "HR / People Operations",
+    "onet_codes": ["11-3121.00"],
+    "competencies": [
+      "Culture and values alignment",
+      "Conflict resolution",
+      "Policy and compliance awareness",
+      "Employee experience",
+      "Organizational communication"
+    ],
+    "rubric_weights": {
+      "communication": 0.35,
+      "structure": 0.25,
+      "content": 0.25,
+      "logical_flow": 0.15
+    }
+  },
+  {
+    "role_key": "behavioral_general",
+    "display_name": "General Professional",
+    "onet_codes": [],
+    "competencies": [
+      "STAR storytelling",
+      "Ownership and accountability",
+      "Impact with measurable outcomes",
+      "Collaboration across teams",
+      "Learning from failure"
+    ],
+    "rubric_weights": {
+      "communication": 0.28,
+      "structure": 0.32,
+      "content": 0.25,
+      "logical_flow": 0.15
+    }
+  }
+]

@@ -1,0 +1,4 @@
+stitch/
+docs/
+*.md
+!README.md

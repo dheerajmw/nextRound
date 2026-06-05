@@ -1,0 +1,50 @@
+[
+  {
+    "slug": "google",
+    "name": "Google",
+    "description": "Product, SWE, and behavioral loops emphasizing scalability and user impact.",
+    "interview_focus": "Technical depth, ambiguity, and Googleyness",
+    "question_pack": [
+      "Tell me about a time you improved a system at scale.",
+      "How do you prioritize when user needs conflict with engineering cost?",
+      "Describe a mistake you made in production and how you fixed it."
+    ],
+    "rubric_emphasis": { "content": 0.38, "logical_flow": 0.22 }
+  },
+  {
+    "slug": "amazon",
+    "name": "Amazon",
+    "description": "Leadership Principles–style behavioral and PM interviews.",
+    "interview_focus": "LP stories, ownership, customer obsession",
+    "question_pack": [
+      "Give an example of diving deep to solve a customer problem.",
+      "Tell me about a time you disagreed with a decision but committed.",
+      "Describe delivering results under a tight deadline."
+    ],
+    "rubric_emphasis": { "structure": 0.35, "content": 0.3 }
+  },
+  {
+    "slug": "meta",
+    "name": "Meta",
+    "description": "Product sense, execution, and cross-functional influence.",
+    "interview_focus": "Impact, speed, collaboration",
+    "question_pack": [
+      "How would you grow engagement for a declining feature?",
+      "Tell me about shipping something fast that you later iterated on.",
+      "Describe influencing a team without direct authority."
+    ],
+    "rubric_emphasis": { "communication": 0.3, "content": 0.35 }
+  },
+  {
+    "slug": "startup",
+    "name": "Early-stage startup",
+    "description": "Generalist interviews: ownership, scrappiness, learning velocity.",
+    "interview_focus": "Breadth, bias to action, resourcefulness",
+    "question_pack": [
+      "Why this startup and role now?",
+      "Tell me about wearing multiple hats on a small team.",
+      "What would you build in your first 30 days?"
+    ],
+    "rubric_emphasis": { "communication": 0.32, "content": 0.28 }
+  }
+]

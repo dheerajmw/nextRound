@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InterviewIQ | Master Interviews with AI-Powered Feedback</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .glass-panel {
+            background: rgba(30, 30, 32, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(39, 39, 42, 1);
+        }
+        .text-glow {
+            text-shadow: 0 0 20px rgba(173, 198, 255, 0.3);
+        }
+        body {
+            background-color: #131314;
+            color: #e5e2e3;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "on-tertiary-fixed-variant": "#723600",
+                "on-surface-variant": "#c2c6d6",
+                "error-container": "#93000a",
+                "on-tertiary": "#502400",
+                "inverse-on-surface": "#313031",
+                "tertiary-container": "#df7412",
+                "tertiary-fixed": "#ffdcc6",
+                "tertiary": "#ffb786",
+                "surface-container-high": "#2a2a2b",
+                "error": "#ffb4ab",
+                "surface-container": "#201f20",
+                "tertiary-fixed-dim": "#ffb786",
+                "surface": "#131314",
+                "inverse-primary": "#005ac2",
+                "surface-bright": "#39393a",
+                "on-secondary": "#2f3037",
+                "primary": "#adc6ff",
+                "surface-container-low": "#1c1b1c",
+                "on-background": "#e5e2e3",
+                "secondary": "#c6c6cf",
+                "background": "#131314",
+                "on-tertiary-fixed": "#311400",
+                "primary-fixed-dim": "#adc6ff",
+                "outline": "#8c909f",
+                "on-error": "#690005",
+                "on-secondary-container": "#b4b4bd",
+                "surface-container-lowest": "#0e0e0f",
+                "outline-variant": "#424754",
+                "on-secondary-fixed": "#1a1b22",
+                "on-secondary-fixed-variant": "#45464e",
+                "on-primary": "#002e6a",
+                "on-primary-fixed-variant": "#004395",
+                "on-tertiary-container": "#461f00",
+                "primary-fixed": "#d8e2ff",
+                "surface-dim": "#131314",
+                "secondary-fixed-dim": "#c6c6cf",
+                "on-surface": "#e5e2e3",
+                "on-primary-fixed": "#001a42",
+                "secondary-container": "#45464e",
+                "on-primary-container": "#00285d",
+                "surface-tint": "#adc6ff",
+                "surface-container-highest": "#353436",
+                "on-error-container": "#ffdad6",
+                "primary-container": "#4d8eff",
+                "inverse-surface": "#e5e2e3",
+                "surface-variant": "#353436",
+                "secondary-fixed": "#e2e1eb"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+              },
+              "spacing": {
+                "pane_min_width": "320px",
+                "unit_base": "4px",
+                "margin": "40px",
+                "sidebar_width": "260px",
+                "grid_columns": "12",
+                "gutter": "24px"
+              },
+              "fontFamily": {
+                "body-md": ["Inter"],
+                "label-sm": ["JetBrains Mono"],
+                "headline-md": ["Geist"],
+                "label-md": ["JetBrains Mono"],
+                "display-xl": ["Geist"],
+                "body-lg": ["Inter"],
+                "headline-lg": ["Geist"]
+              },
+              "fontSize": {
+                "body-md": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                "label-sm": ["11px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                "label-md": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                "display-xl": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="font-body-md bg-background text-on-surface selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 right-0 w-full h-16 flex justify-between items-center px-margin py-unit_base z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/20">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">InterviewIQ</span>
+<div class="hidden md:flex gap-6">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#features">Features</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#benchmarks">Benchmarks</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#pricing">Pricing</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1 bg-secondary-container rounded-full">
+<span class="material-symbols-outlined text-primary text-[18px]">local_fire_department</span>
+<span class="font-label-md text-label-md text-on-secondary-container">Streaks: 12</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">Start Mock Session</button>
+</div>
+</nav>
+<main class="pt-16">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center justify-center overflow-hidden px-margin">
+<div class="absolute inset-0 z-0">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute top-1/4 right-0 w-[400px] h-[400px] bg-tertiary/5 rounded-full blur-[100px]"></div>
+</div>
+<div class="relative z-10 max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="text-left space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-outline-variant/20 border border-outline-variant/30 rounded-full">
+<span class="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">New: AI Behavioral Analysis 2.0</span>
+</div>
+<h1 class="font-display-xl text-display-xl leading-tight text-glow">
+                        Master Interviews with <span class="text-primary">AI-Powered</span> Personalized Feedback
+                    </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                        The world's most advanced technical and behavioral interview simulator. Get real-time analysis on your posture, tone, and technical accuracy.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<button class="px-8 py-4 bg-primary text-on-primary rounded-xl font-label-md text-label-md font-bold hover:scale-105 transition-transform">
+                            Start Your First Session
+                        </button>
+<button class="px-8 py-4 bg-surface-container border border-outline-variant/30 text-on-surface rounded-xl font-label-md text-label-md font-bold hover:bg-surface-container-high transition-colors">
+                            Watch Demo
+                        </button>
+</div>
+</div>
+<div class="relative hidden lg:block">
+<div class="glass-panel p-6 rounded-2xl shadow-2xl relative overflow-hidden group">
+<img alt="AI Interview Interface" class="w-full h-auto rounded-lg" data-alt="A sophisticated high-tech user interface for an AI interview platform. The screen shows a professional split-pane layout with a video feed of a candidate on one side and real-time scrolling technical feedback, sentiment analysis graphs, and code editor on the other. The aesthetic is clean and dark, dominated by deep grays and vibrant electric blue highlights. The lighting is crisp, evoking a high-end SaaS software environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjw0g5RqorEmINpWyl0SY8RrxYhb5YZ0K0yx02zg2XLrBSBi5uRg9Yqx6y7RoGVfuxMUJhPI8weU65b8fKTpvDqMXLdUe8PGj-MfqD0RA6Tk0WR89gbtWu6x16GMg7_EXCAUctYv4Nx8rI1vxhKw-jDHJl5mg6irdEU1-ajJ6QccLDEmyAuryFqI0AOoR_VWW2AkfDlbmk9xTMXMUQp2RYPCl4GnNdTfO1mOXwdyl__5GwHJQ52ia8lBuop7dzB8TaHcgcpPyK_G0"/>
+<div class="absolute bottom-8 right-8 glass-panel p-4 rounded-xl border-primary/30 flex items-center gap-4 animate-bounce">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Confidence Score</p>
+<p class="font-headline-md text-headline-md text-primary">94.2%</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="py-24 px-margin max-w-7xl mx-auto" id="features">
+<div class="text-center mb-16 space-y-4">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Everything you need to land the offer</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Engineered for candidates targeting Tier 1 tech companies.</p>
+</div>
+<div class="grid grid-cols-12 gap-6 h-[700px]">
+<div class="col-span-12 md:col-span-8 glass-panel p-10 rounded-2xl relative overflow-hidden group">
+<div class="z-10 relative">
+<span class="material-symbols-outlined text-primary text-4xl mb-4">videocam</span>
+<h3 class="font-headline-md text-headline-md mb-4">AI Mock Interviews</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">Our LLM-powered interviewers adapt to your answers in real-time, probing deeper into your technical choices just like a real Lead Engineer.</p>
+</div>
+<div class="absolute bottom-0 right-0 w-3/4 opacity-40 group-hover:opacity-60 transition-opacity">
+<!-- Content placeholder for decorative UI elements -->
+<div class="p-8 space-y-4">
+<div class="h-2 w-full bg-outline-variant/30 rounded"></div>
+<div class="h-2 w-5/6 bg-outline-variant/30 rounded"></div>
+<div class="h-2 w-4/6 bg-primary/20 rounded"></div>
+</div>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 bg-tertiary-container/10 border border-tertiary/20 p-10 rounded-2xl">
+<span class="material-symbols-outlined text-tertiary text-4xl mb-4">trending_up</span>
+<h3 class="font-headline-md text-headline-md mb-4">Real-time Analysis</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Instant feedback on technical accuracy, verbal fillers, and eye contact as you speak.</p>
+</div>
+<div class="col-span-12 md:col-span-4 glass-panel p-10 rounded-2xl border-outline-variant/20">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4">assignment_turned_in</span>
+<h3 class="font-headline-md text-headline-md mb-4">Personalized Plans</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">A curriculum generated based on your performance gaps and target role.</p>
+</div>
+<div class="col-span-12 md:col-span-8 glass-panel p-10 rounded-2xl flex flex-col justify-between overflow-hidden relative">
+<div class="z-10">
+<span class="material-symbols-outlined text-primary text-4xl mb-4">psychology</span>
+<h3 class="font-headline-md text-headline-md mb-4">Behavioral Archetypes</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">Master the STAR method with AI feedback that evaluates your narrative structure and leadership impact.</p>
+</div>
+<div class="absolute -right-10 -bottom-10 w-64 h-64 bg-primary/5 blur-3xl"></div>
+</div>
+</div>
+</section>
+<!-- Global Peer Benchmark Section -->
+<section class="py-24 bg-surface-container-lowest" id="benchmarks">
+<div class="max-w-7xl mx-auto px-margin grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="space-y-6">
+<h2 class="font-headline-lg text-headline-lg">Global Peer Benchmark</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                        Stop wondering how you compare. We analyze anonymized data from over 500,000 mock sessions to show you exactly where you stand against candidates applying for the same roles at FAANG companies.
+                    </p>
+<ul class="space-y-4">
+<li class="flex items-center gap-4 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+                            Percentile ranking by technical domain
+                        </li>
+<li class="flex items-center gap-4 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+                            Role-specific difficulty scaling
+                        </li>
+<li class="flex items-center gap-4 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+                            Market-readiness scoring
+                        </li>
+</ul>
+</div>
+<div class="glass-panel p-8 rounded-2xl">
+<img alt="Benchmark Analytics Dashboard" class="w-full rounded-lg" data-alt="A highly detailed and sophisticated data visualization dashboard. It features multiple overlapping radar charts, heatmaps, and trend lines comparing individual candidate performance against global averages. The visualization uses a palette of electric blue, muted grays, and deep obsidian. The design is sleek and technical, resembling a high-performance financial or analytical tool, set against a dark, minimalist background with subtle glassmorphic reflections." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwi8fbgYa6_qh6-ZWLVoV87zUtYdVGD66nhfFd78d-beP_Jer7Ek5XNVjyTcl4V1Ds2XuYox9umLSEoK6nEFAWlGqptw37xwCYD9aW3XnJTFiuleflt6qg5_fZsVz5yTKeKmxk0XpLAeJFVLYx2Ox04DOqiJFj6sNesaLaZW1N10-cLuk_gOdf54KgG6KQTDUXRKoUk6MMVA5lmiV29xMUqsKn8_-XsjNEzHP4gO0iQATbtS2vaLjU2aBfwv8Rv_LXylPd9i6lc6Q"/>
+</div>
+</div>
+</section>
+<!-- Testimonials -->
+<section class="py-24 px-margin max-w-7xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-center mb-16">Trusted by the world's best talent</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="glass-panel p-8 rounded-2xl flex flex-col justify-between">
+<p class="font-body-md text-body-md italic text-on-surface-variant mb-8">"The AI interviewers were remarkably human. The technical probing into my system design choices helped me identify gaps I didn't know I had. Landed a Senior role at Google thanks to this."</p>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary rounded-full overflow-hidden">
+<img alt="Software Engineer at Google" class="w-full h-full object-cover" data-alt="A professional headshot of a young male software engineer in a modern, brightly lit office environment. He is wearing a minimalist tech-casual outfit. The lighting is soft and professional, with a shallow depth of field focusing on his friendly yet confident expression. The overall aesthetic is clean, corporate-modern, and high-performance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH1ORKKBi4YnSOlcbDU80q82uIFgLVYLKScXw73aQWeUb2OIE_78KGJlbH8i62AS7rjJAuc9_ZEiark3y28Gv8sCJ4YHcbGop1mQXcOHzr0cGx8v5IhU8R4BvFeGilLrP_GTW1DVcTehFm3HxUxoYfFes1j2BHRUNOQFZcq9v25CyAooreD1gaU_W2669-K_idu6SMG3FzFP__JHOdIdjgWaG6boHGXMLNMD-nLO4J8hivn-9t3CwdiABP8wVoASJvSzhxsju4X3w"/>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold">Alex Chen</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Senior SWE @ Google</p>
+</div>
+</div>
+</div>
+<div class="glass-panel p-8 rounded-2xl flex flex-col justify-between">
+<p class="font-body-md text-body-md italic text-on-surface-variant mb-8">"InterviewIQ is the best tool for behavioral prep. The sentiment analysis on my delivery helped me tone down my nervous speaking patterns and sound much more senior."</p>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary rounded-full overflow-hidden">
+<img alt="Product Manager at Meta" class="w-full h-full object-cover" data-alt="A professional headshot of a female product manager in a sleek, minimalist corporate setting. She is smiling confidently, dressed in professional business attire. The background is a blurred high-end office lobby with soft, warm lighting. The image conveys authority, intelligence, and modern professionalism in a high-tech corporate culture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdBxQ9f_YEEEUiTVCEF3HBKEs_ch21rW2RT4Per4P2ZCvaV6hDdS5vXj7nNLQnyzGO3k0QhVGWu0cMNwU6BAtKsYmA08vKlURSVmNxo6XP7ReF-2E-b_DpspC5rjH3b-vKmq5YJNXpphRAcircSwyYZRU_gYFf2h8wJfYwiCEHPpo8OZI7hA7jbivR_nq-caOsf3hrfVD4UYJ4n0-oAlPNBCovlHyE8lUuBvVwpW-tHDnYHM7JvF4RoXlVlBu9FYpZEG2-WK7W9IA"/>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold">Sarah Jenkins</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">L6 PM @ Meta</p>
+</div>
+</div>
+</div>
+<div class="glass-panel p-8 rounded-2xl flex flex-col justify-between border-primary/20">
+<p class="font-body-md text-body-md italic text-on-surface-variant mb-8">"As a hiring manager, I now recommend this to all candidates I mentor. The feedback loop is 10x faster than traditional mock interviews with peers."</p>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary rounded-full overflow-hidden">
+<img alt="Engineering Manager at Stripe" class="w-full h-full object-cover" data-alt="A professional headshot of a mature engineering manager with a tech-forward aesthetic. He is in a modern architectural space with glass and steel elements in the background. The lighting is cool-toned and crisp, highlighting a clean, high-performance professional image. He has an approachable and wise expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSo_j81gImkz3vSwgykWAXrbKbTqjcYtr6f8oMeMXAXcJ4IGkmldJagLsrGPv6PlFi1lhqkFHmKPRd5wPoT1lGmGJjyazXZ1vE9ORgU9qenhzkr88fDQAHuqqvcDZODlU2GKnak1BCKH4_vsnf6JcyjfNr6YyyaLV341Bnr22GYNSPcGrPCM1rpTKvSC4PgwK9JZyzUBkZiJWwUNipeyVJWgeFwDQ6luL2ZjfZ3iVwie2yP9orX20RPEnPjvMAoW2mTdwDqxevrio"/>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold">David Miller</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">EM @ Stripe</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing Section -->
+<section class="py-24 px-margin bg-surface-container-low" id="pricing">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16 space-y-4">
+<h2 class="font-headline-lg text-headline-lg">Simple, Transparent Pricing</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Accelerate your career without breaking the bank.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Free Plan -->
+<div class="glass-panel p-10 rounded-2xl border-outline-variant/30 flex flex-col">
+<div class="mb-8">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2">Free</p>
+<h3 class="font-headline-md text-headline-md font-bold">$0<span class="text-body-md font-normal text-on-surface-variant">/mo</span></h3>
+</div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center gap-3 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                2 Mock Sessions per week
+                            </li>
+<li class="flex items-center gap-3 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                Basic Technical Feedback
+                            </li>
+<li class="flex items-center gap-3 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                Community Access
+                            </li>
+</ul>
+<button class="w-full py-3 border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors">Get Started</button>
+</div>
+<!-- Pro Plan -->
+<div class="glass-panel p-10 rounded-2xl border-primary/50 relative overflow-hidden flex flex-col transform scale-105 shadow-2xl">
+<div class="absolute top-0 right-0 bg-primary text-on-primary font-label-sm text-[10px] px-4 py-1 rounded-bl-lg font-bold">MOST POPULAR</div>
+<div class="mb-8">
+<p class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-2">Pro</p>
+<h3 class="font-headline-md text-headline-md font-bold">$29<span class="text-body-md font-normal text-on-surface-variant">/mo</span></h3>
+</div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center gap-3 text-on-surface font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                Unlimited Mock Sessions
+                            </li>
+<li class="flex items-center gap-3 text-on-surface font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                Advanced AI Analysis
+                            </li>
+<li class="flex items-center gap-3 text-on-surface font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                Global Peer Benchmarks
+                            </li>
+<li class="flex items-center gap-3 text-on-surface font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                Personalized Study Plans
+                            </li>
+</ul>
+<button class="w-full py-3 bg-primary text-on-primary rounded-lg font-label-md text-label-md font-bold hover:opacity-90 transition-opacity">Upgrade to Pro</button>
+</div>
+<!-- Teams Plan -->
+<div class="glass-panel p-10 rounded-2xl border-outline-variant/30 flex flex-col">
+<div class="mb-8">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2">Teams</p>
+<h3 class="font-headline-md text-headline-md font-bold">$99<span class="text-body-md font-normal text-on-surface-variant">/mo</span></h3>
+</div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center gap-3 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                5 Seats Included
+                            </li>
+<li class="flex items-center gap-3 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                SSO &amp; Team Management
+                            </li>
+<li class="flex items-center gap-3 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                Custom Branding
+                            </li>
+<li class="flex items-center gap-3 text-on-surface-variant font-label-md">
+<span class="material-symbols-outlined text-primary text-[18px]">check</span>
+                                API Access
+                            </li>
+</ul>
+<button class="w-full py-3 border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors">Contact Sales</button>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-24 px-margin">
+<div class="max-w-5xl mx-auto glass-panel p-16 rounded-3xl text-center relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
+<h2 class="font-display-xl text-[48px] leading-tight mb-6">Ready to land your dream offer?</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto">Join 50,000+ professionals using InterviewIQ to master their craft and increase their compensation.</p>
+<div class="flex flex-col md:flex-row justify-center gap-4">
+<button class="px-12 py-5 bg-primary text-on-primary rounded-xl font-label-md text-label-md font-bold hover:scale-105 transition-transform shadow-xl">Get Started for Free</button>
+<button class="px-12 py-5 bg-surface-container border border-outline-variant text-on-surface rounded-xl font-label-md text-label-md font-bold hover:bg-surface-container-high transition-colors">Schedule a Demo</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant/20 py-12">
+<div class="max-w-7xl mx-auto px-margin flex flex-col md:flex-row justify-between items-start gap-12">
+<div class="space-y-4">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">InterviewIQ</span>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs">Elevating interview performance through cutting-edge artificial intelligence and behavioral science.</p>
+<div class="flex gap-4">
+<a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" href="#">public</a>
+<a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" href="#">alternate_email</a>
+<a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" href="#">share</a>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-12">
+<div class="space-y-4">
+<p class="font-label-md text-label-md font-bold uppercase tracking-widest text-on-surface">Product</p>
+<ul class="space-y-2">
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Features</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Pricing</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Benchmarks</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="font-label-md text-label-md font-bold uppercase tracking-widest text-on-surface">Resources</p>
+<ul class="space-y-2">
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Support</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">API Docs</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="font-label-md text-label-md font-bold uppercase tracking-widest text-on-surface">Legal</p>
+<ul class="space-y-2">
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Cookies</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-margin pt-12 mt-12 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-label-sm text-label-sm text-on-surface-variant">© 2024 InterviewIQ. All rights reserved.</p>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Systems Operational</span>
+</div>
+</div>
+</footer>
+<script>
+        // Simple parallax or micro-interaction logic
+        document.addEventListener('mousemove', (e) => {
+            const glow = document.querySelector('.bg-primary\\/10');
+            if (glow) {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                glow.style.transform = `translate(${(x - 0.5) * 50}px, ${(y - 0.5) * 50}px)`;
+            }
+        });
+
+        // Sticky nav shadow on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 20) {
+                nav.classList.add('shadow-lg');
+            } else {
+                nav.classList.remove('shadow-lg');
+            }
+        });
+    </script>
+</body></html>
