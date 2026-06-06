@@ -36,8 +36,16 @@ const checks = [
   },
   {
     key: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    ok: (v) => v && v.length > 20 && !v.includes("your-anon"),
-    hint: "anon public key from Supabase → Settings → API",
+    ok: (v) =>
+      v &&
+      v.length > 20 &&
+      !v.includes("your-anon") &&
+      !v.includes("placeholder-anon-key") &&
+      (v.startsWith("eyJ") ||
+        v.startsWith("sb_publishable_") ||
+        v.startsWith("sb_secret_")),
+    hint:
+      "Publishable key (sb_publishable_…) or Legacy anon JWT (eyJ…) from Supabase → Settings → API",
   },
   {
     key: "NEXT_PUBLIC_APP_URL",
@@ -55,12 +63,52 @@ for (const { key, ok, hint } of checks) {
   } else {
     failed = true;
     console.error(`✗ ${key} — ${hint}`);
-    if (value) console.error(`  current: ${value.slice(0, 48)}${value.length > 48 ? "…" : ""}`);
+    if (value) {
+      console.error(
+        `  current: ${value.slice(0, 48)}${value.length > 48 ? "…" : ""}`
+      );
+    }
   }
 }
 
+async function verifySupabaseKey() {
+  const url = vars.NEXT_PUBLIC_SUPABASE_URL;
+  const key = vars.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return;
+
+  try {
+    const res = await fetch(`${url}/auth/v1/health`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    const body = await res.text();
+    if (res.ok) {
+      console.log("✓ Supabase API key accepted (auth health check)");
+      return;
+    }
+    failed = true;
+    console.error(`✗ Supabase rejected your API key (HTTP ${res.status})`);
+    if (body.toLowerCase().includes("invalid api key")) {
+      console.error(
+        "  Copy Publishable or Legacy anon key from the SAME project as your URL."
+      );
+    } else {
+      console.error(`  ${body.slice(0, 120)}`);
+    }
+  } catch (error) {
+    failed = true;
+    console.error(
+      `✗ Could not reach Supabase: ${error instanceof Error ? error.message : error}`
+    );
+  }
+}
+
+await verifySupabaseKey();
+
 if (failed) {
   console.error("\nEdit .env.local, then restart: npm run dev");
+  console.error(
+    "On Vercel: set the same vars → Deployments → Redeploy (required for NEXT_PUBLIC_*)."
+  );
   process.exit(1);
 }
 

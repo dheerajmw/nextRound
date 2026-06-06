@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 type NavItem = { href: string; label: string; icon: string; match?: (p: string) => boolean };
 
 const PRIMARY_NAV: NavItem[] = [
+  { href: "/", label: "Home", icon: "home" },
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
   {
     href: "/interviews/new",
@@ -31,7 +32,9 @@ function NavLink({ href, label, icon, match }: NavItem) {
   const pathname = usePathname();
   const active = match
     ? match(pathname)
-    : pathname === href || pathname.startsWith(`${href}/`);
+    : href === "/"
+      ? pathname === "/"
+      : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <Link
@@ -58,7 +61,9 @@ export function AppShell({
   const pathname = usePathname();
   const pageTitle =
     title ??
-    (pathname.startsWith("/interviews")
+    (pathname === "/"
+      ? "Home"
+      : pathname.startsWith("/interviews")
       ? "Mock interview"
       : pathname.startsWith("/org")
         ? "Partners"

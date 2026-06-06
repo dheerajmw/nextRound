@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { getServerEnv } from "@/lib/env";
+import { getAppUrl, getServerEnv } from "@/lib/env";
 
 export type LlmProvider = "gemini" | "openrouter";
 
@@ -54,7 +54,7 @@ export async function completeWithOpenRouter(
     headers: {
       Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+      "HTTP-Referer": getAppUrl(),
       "X-Title": "nextRound",
     },
     body: JSON.stringify({

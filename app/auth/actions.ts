@@ -12,8 +12,10 @@ import {
   safeAuthenticatedPath,
   signupLandingPath,
 } from "@/lib/auth/paths";
+import { getRequestOrigin } from "@/lib/auth/request-origin";
 import { createClient } from "@/lib/supabase/server";
-import { getPublicEnv } from "@/lib/env";
+import { getAppUrl } from "@/lib/env";
+import { verifySupabaseConnection } from "@/lib/supabase/verify-connection";
 
 export async function signInWithEmail(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
@@ -26,6 +28,11 @@ export async function signInWithEmail(formData: FormData) {
 
   if (!isSupabaseConfigured()) {
     return { error: supabaseConfigError() };
+  }
+
+  const connection = await verifySupabaseConnection();
+  if (!connection.ok) {
+    return { error: connection.message };
   }
 
   try {
@@ -62,15 +69,21 @@ export async function signUpWithEmail(formData: FormData) {
     return { error: supabaseConfigError() };
   }
 
+  const connection = await verifySupabaseConnection();
+  if (!connection.ok) {
+    return { error: connection.message };
+  }
+
   try {
-    const { NEXT_PUBLIC_APP_URL } = getPublicEnv();
+    const origin = await getRequestOrigin();
+    const appUrl = getAppUrl(origin);
     const supabase = await createClient();
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${NEXT_PUBLIC_APP_URL}/auth/callback`,
+        emailRedirectTo: `${appUrl}/auth/callback`,
         data: displayName ? { full_name: displayName } : undefined,
       },
     });

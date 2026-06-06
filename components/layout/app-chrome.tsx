@@ -2,7 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/app-shell";
 import type { ReactNode } from "react";
 
-export async function AppChrome({ children }: { children: ReactNode }) {
+export async function AppChrome({
+  children,
+  title,
+}: {
+  children: ReactNode;
+  title?: string;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -19,7 +25,7 @@ export async function AppChrome({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppShell userEmail={user?.email} displayName={displayName}>
+    <AppShell userEmail={user?.email} displayName={displayName} title={title}>
       {children}
     </AppShell>
   );

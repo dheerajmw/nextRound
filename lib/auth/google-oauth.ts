@@ -5,12 +5,13 @@ import {
   supabaseConfigError,
 } from "@/lib/auth/format-auth-error";
 import { createClient } from "@/lib/supabase/server";
-import { getPublicEnv } from "@/lib/env";
+import { getAppUrl } from "@/lib/env";
 
 import { safeAuthenticatedPath } from "@/lib/auth/paths";
 
 export async function getGoogleOAuthRedirectUrl(
-  nextPath?: string | null
+  nextPath?: string | null,
+  origin?: string | null
 ): Promise<{ url: string } | { error: string }> {
   if (!isSupabaseConfigured()) {
     return { error: supabaseConfigError() };
@@ -19,9 +20,9 @@ export async function getGoogleOAuthRedirectUrl(
   const next = safeAuthenticatedPath(nextPath);
 
   try {
-    const { NEXT_PUBLIC_APP_URL } = getPublicEnv();
+    const appUrl = getAppUrl(origin);
     const supabase = await createClient();
-    const callbackUrl = new URL("/auth/callback", NEXT_PUBLIC_APP_URL);
+    const callbackUrl = new URL("/auth/callback", appUrl);
     callbackUrl.searchParams.set("next", next);
 
     const { data, error } = await supabase.auth.signInWithOAuth({

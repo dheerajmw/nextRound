@@ -1,9 +1,27 @@
+const PLACEHOLDER_URL_MARKERS = ["your-project", "your_project", "YOUR_PROJECT"];
+const PLACEHOLDER_KEY_MARKERS = [
+  "your-anon",
+  "your-anon-or-publishable",
+  "placeholder-anon-key",
+  "your-anon-key",
+];
+
 export function isSupabaseConfigured(): boolean {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
+  const key = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
 
   if (!url || !key) return false;
-  if (url.includes("your-project") || key.includes("your-anon")) return false;
+
+  const urlLower = url.toLowerCase();
+  const keyLower = key.toLowerCase();
+
+  if (PLACEHOLDER_URL_MARKERS.some((marker) => urlLower.includes(marker))) {
+    return false;
+  }
+
+  if (PLACEHOLDER_KEY_MARKERS.some((marker) => keyLower.includes(marker))) {
+    return false;
+  }
 
   return true;
 }
@@ -35,6 +53,17 @@ export function mapSupabaseAuthError(message: string): string {
 
   if (lower.includes("invalid login credentials")) {
     return "Incorrect email or password.";
+  }
+
+  if (lower.includes("invalid api key")) {
+    return (
+      "Supabase rejected the API key. Fix NEXT_PUBLIC_SUPABASE_ANON_KEY so it matches " +
+      "NEXT_PUBLIC_SUPABASE_URL (Supabase → Settings → API). " +
+      "Use the Legacy anon key (eyJ…) if the publishable key fails. " +
+      "On Vercel: set env vars for Production and Preview, set NEXT_PUBLIC_APP_URL to " +
+      "https://next-round-zeta.vercel.app (not a preview URL), then redeploy. " +
+      "Local: run npm run check:env and restart npm run dev."
+    );
   }
 
   return message;
