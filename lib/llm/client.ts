@@ -14,10 +14,18 @@ const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash";
 const DEFAULT_OPENROUTER_MODEL =
   process.env.OPENROUTER_MODEL?.trim() || "openrouter/free";
 
+export type CompleteWithFallbackOptions = {
+  /** Enforces per-organization daily LLM cap (Phase 7). */
+  userId?: string;
+  /** Ask Gemini to return application/json (more reliable structured output). */
+  jsonMode?: boolean;
+};
+
 export async function completeWithGemini(
   prompt: string,
   model = DEFAULT_GEMINI_MODEL,
-  maxOutputTokens = 256
+  maxOutputTokens = 256,
+  jsonMode = false
 ): Promise<CompletionResult> {
   const { GEMINI_API_KEY } = getServerEnv();
   if (!GEMINI_API_KEY) {
@@ -27,7 +35,10 @@ export async function completeWithGemini(
   const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
   const generativeModel = genAI.getGenerativeModel({
     model,
-    generationConfig: { maxOutputTokens },
+    generationConfig: {
+      maxOutputTokens,
+      ...(jsonMode ? { responseMimeType: "application/json" } : {}),
+    },
   });
   const result = await generativeModel.generateContent(prompt);
   const text = result.response.text();
@@ -81,11 +92,6 @@ export async function completeWithOpenRouter(
   return { provider: "openrouter", text, model };
 }
 
-export type CompleteWithFallbackOptions = {
-  /** Enforces per-organization daily LLM cap (Phase 7). */
-  userId?: string;
-};
-
 /** Primary Gemini with OpenRouter fallback (Phase 0 ping / future orchestration). */
 export async function completeWithFallback(
   prompt: string,
@@ -98,10 +104,16 @@ export async function completeWithFallback(
   }
 
   const { GEMINI_API_KEY, OPENROUTER_API_KEY } = getServerEnv();
+  const jsonMode = options?.jsonMode ?? false;
 
   if (GEMINI_API_KEY) {
     try {
-      return await completeWithGemini(prompt, DEFAULT_GEMINI_MODEL, maxTokens);
+      return await completeWithGemini(
+        prompt,
+        DEFAULT_GEMINI_MODEL,
+        maxTokens,
+        jsonMode
+      );
     } catch (error) {
       if (!OPENROUTER_API_KEY) throw error;
       console.warn("[llm] Gemini failed, falling back to OpenRouter", error);

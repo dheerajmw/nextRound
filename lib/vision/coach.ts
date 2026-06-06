@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { buildCoachChatPrompt } from "@/prompts/v1/coach-chat";
 import { completeWithFallback } from "@/lib/llm/client";
-import { extractJsonObject } from "@/lib/interview/parse-json";
+import { parseJsonObject, stripLlmPreface } from "@/lib/interview/parse-json";
 import { computeReadinessIndex } from "@/lib/readiness/compute";
 import type { EvaluationScores } from "@/lib/evaluation/types";
 import { createClient } from "@/lib/supabase/server";
@@ -20,6 +20,20 @@ const coachSchema = z.object({
     .optional()
     .default([]),
 });
+
+function parseCoachResponse(text: string) {
+  try {
+    return parseJsonObject(text, (value) => coachSchema.parse(value));
+  } catch {
+    const plain = stripLlmPreface(text)
+      .replace(/```[\s\S]*?```/g, "")
+      .trim();
+    if (plain.length >= 10) {
+      return coachSchema.parse({ reply: plain, memory_updates: [] });
+    }
+    throw new Error("Coach could not read the model response. Please try again.");
+  }
+}
 
 export async function sendCoachMessage(params: {
   userId: string;
@@ -107,8 +121,9 @@ export async function sendCoachMessage(params: {
 
   const result = await completeWithFallback(prompt, 2048, {
     userId: params.userId,
+    jsonMode: true,
   });
-  const parsed = coachSchema.parse(JSON.parse(extractJsonObject(result.text)));
+  const parsed = parseCoachResponse(result.text);
 
   await supabase.from("coach_messages").insert({
     thread_id: params.threadId,

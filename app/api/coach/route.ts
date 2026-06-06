@@ -72,7 +72,12 @@ export async function POST(request: Request) {
     return NextResponse.json(result);
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Coach request failed";
+      error instanceof Error
+        ? error.message.includes("valid JSON") ||
+          error.message.includes("Unexpected token")
+          ? "Coach could not read the model response. Please try again."
+          : error.message
+        : "Coach request failed";
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }
