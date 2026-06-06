@@ -6,7 +6,7 @@ import {
   shouldPreferBankQuestion,
 } from "@/lib/enrichment/pick-bank-question";
 import { completeWithFallback } from "@/lib/llm/client";
-import { extractJsonObject } from "@/lib/interview/parse-json";
+import { parseJsonObject } from "@/lib/interview/parse-json";
 import type { GeneratedQuestion, PreviousTurnContext } from "@/lib/interview/types";
 import type { InterviewDifficulty } from "@/lib/interview/constants";
 import type { InterviewMode } from "@/lib/supabase/database.types";
@@ -111,9 +111,11 @@ export async function generateInterviewQuestion(params: {
 
   const result = await completeWithFallback(prompt, 1024, {
     userId: params.userId,
+    jsonMode: true,
   });
-  const jsonText = extractJsonObject(result.text);
-  const parsed = questionSchema.parse(JSON.parse(jsonText));
+  const parsed = parseJsonObject(result.text, (value) =>
+    questionSchema.parse(value)
+  );
 
   return {
     question: parsed.question.trim(),

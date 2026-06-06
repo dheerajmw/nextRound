@@ -1,6 +1,56 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  filterEnglishVoices,
+  getDefaultVoiceNameFromEnv,
+  getStoredTtsMuted,
+  getStoredVoiceName,
+  resolveSpeechVoice,
+  setStoredTtsMuted,
+  setStoredVoiceName,
+  TTS_LANG,
+  TTS_PREVIEW_TEXT,
+} from "@/lib/speech/tts-preferences";
+
+export { TTS_PREVIEW_TEXT };
+
+const ttsMuteListeners = new Set<() => void>();
+
+function notifyTtsMuteChange() {
+  ttsMuteListeners.forEach((listener) => listener());
+}
+
+export function getTtsMuted(): boolean {
+  return getStoredTtsMuted();
+}
+
+export function setTtsMuted(muted: boolean): void {
+  setStoredTtsMuted(muted);
+  if (muted) {
+    stopSpeaking();
+  }
+  notifyTtsMuteChange();
+}
+
+export function useTtsMute() {
+  const [muted, setMutedState] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setMutedState(getTtsMuted());
+    sync();
+    ttsMuteListeners.add(sync);
+    return () => {
+      ttsMuteListeners.delete(sync);
+    };
+  }, []);
+
+  const toggle = useCallback(() => {
+    setTtsMuted(!getTtsMuted());
+  }, []);
+
+  return { muted, toggle, setMuted: setTtsMuted };
+}
 
 type SpeechRecognitionCtor = new () => SpeechRecognition;
 
@@ -11,6 +61,60 @@ function getSpeechRecognition(): SpeechRecognitionCtor | null {
     webkitSpeechRecognition?: SpeechRecognitionCtor;
   };
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
+
+function loadVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === "undefined" || !window.speechSynthesis) {
+    return [];
+  }
+  return window.speechSynthesis.getVoices();
+}
+
+export function useSpeechVoices() {
+  const [supported, setSupported] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedName, setSelectedNameState] = useState("");
+
+  useEffect(() => {
+    setSupported(typeof window !== "undefined" && !!window.speechSynthesis);
+  }, []);
+
+  useEffect(() => {
+    if (!supported) return;
+
+    const refresh = () => {
+      const next = filterEnglishVoices(loadVoices());
+      setVoices(next);
+
+      const stored = getStoredVoiceName();
+      const envDefault = getDefaultVoiceNameFromEnv();
+      if (stored) {
+        setSelectedNameState(stored);
+        return;
+      }
+      if (envDefault) {
+        const match = resolveSpeechVoice(next, envDefault);
+        if (match) {
+          setSelectedNameState(match.name);
+          return;
+        }
+      }
+      setSelectedNameState("");
+    };
+
+    refresh();
+    window.speechSynthesis.addEventListener("voiceschanged", refresh);
+    return () => {
+      window.speechSynthesis.removeEventListener("voiceschanged", refresh);
+    };
+  }, [supported]);
+
+  const setSelectedName = useCallback((name: string) => {
+    setStoredVoiceName(name || null);
+    setSelectedNameState(name);
+  }, []);
+
+  return { supported, voices, selectedName, setSelectedName };
 }
 
 export function useSpeechRecognition() {
@@ -40,7 +144,7 @@ export function useSpeechRecognition() {
     const recognition = new Ctor();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = "en-US";
+    recognition.lang = TTS_LANG;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let text = "";
@@ -82,8 +186,15 @@ export function useSpeechRecognition() {
   };
 }
 
-export function speakText(text: string): boolean {
+export function speakText(
+  text: string,
+  options?: { force?: boolean }
+): boolean {
   if (typeof window === "undefined" || !window.speechSynthesis) {
+    return false;
+  }
+
+  if (!options?.force && getTtsMuted()) {
     return false;
   }
 
@@ -91,7 +202,13 @@ export function speakText(text: string): boolean {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 1;
   utterance.pitch = 1;
-  utterance.lang = "en-US";
+  utterance.lang = TTS_LANG;
+
+  const voice = resolveSpeechVoice(loadVoices());
+  if (voice) {
+    utterance.voice = voice;
+  }
+
   window.speechSynthesis.speak(utterance);
   return true;
 }

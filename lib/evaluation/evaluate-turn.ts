@@ -6,7 +6,7 @@ import type {
   EvaluationFeedback,
   EvaluationScores,
 } from "@/lib/evaluation/types";
-import { extractJsonObject } from "@/lib/interview/parse-json";
+import { parseJsonObject } from "@/lib/interview/parse-json";
 import { completeWithFallback } from "@/lib/llm/client";
 import { getEnrichmentContext } from "@/lib/enrichment/access";
 import type { InterviewMode } from "@/lib/supabase/database.types";
@@ -61,9 +61,10 @@ export async function evaluateTurn(
 
   const result = await completeWithFallback(prompt, 2048, {
     userId: input.userId,
+    jsonMode: true,
   });
-  const parsed = evaluationSchema.parse(
-    JSON.parse(extractJsonObject(result.text))
+  const parsed = parseJsonObject(result.text, (value) =>
+    evaluationSchema.parse(value)
   );
 
   return {

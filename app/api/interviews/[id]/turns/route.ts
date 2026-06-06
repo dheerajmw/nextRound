@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/api/auth";
 import { hasLlmKeys } from "@/lib/env";
+import { formatJsonParseError } from "@/lib/interview/parse-json";
 import { processAnswerSubmission } from "@/lib/interview/process-answer";
 import { getSessionForUser } from "@/lib/interview/session-access";
 
@@ -89,7 +90,9 @@ export async function POST(request: Request, context: RouteContext) {
       return NextResponse.json({ error: error.message }, { status: 429 });
     }
     const message =
-      error instanceof Error ? error.message : "Failed to process answer";
+      error instanceof Error
+        ? formatJsonParseError(error)
+        : "Failed to process answer";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

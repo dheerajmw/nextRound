@@ -6,6 +6,8 @@ import { CancelledInterview } from "@/components/interview/cancelled-interview";
 import { CompletedInterview } from "@/components/interview/completed-interview";
 import { InterviewTracker } from "@/components/interview/interview-tracker";
 import { QuestionSpeaker } from "@/components/interview/question-speaker";
+import { TtsMuteButton } from "@/components/interview/tts-mute-button";
+import { TtsVoicePicker } from "@/components/interview/tts-voice-picker";
 import { VoiceAnswerControls } from "@/components/interview/voice-answer-controls";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -263,10 +265,18 @@ export function InterviewRoom({
           {openTurn.rationale ? (
             <CardDescription>{openTurn.rationale}</CardDescription>
           ) : null}
-          <QuestionSpeaker
-            question={openTurn.question}
-            autoSpeak={session.input_mode !== "text"}
-          />
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+            <div className="flex flex-wrap items-center gap-2">
+              <QuestionSpeaker
+                question={openTurn.question}
+                autoSpeak={showVoice && session.input_mode !== "text"}
+              />
+              {showVoice ? <TtsMuteButton /> : null}
+            </div>
+            {showVoice ? (
+              <TtsVoicePicker className="w-full sm:max-w-md" />
+            ) : null}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {showVoice ? (

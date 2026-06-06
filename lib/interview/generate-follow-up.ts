@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { buildGenerateFollowUpPrompt } from "@/prompts/v1/generate-follow-up";
 import { completeWithFallback } from "@/lib/llm/client";
-import { extractJsonObject } from "@/lib/interview/parse-json";
+import { parseJsonObject } from "@/lib/interview/parse-json";
 import type { GeneratedQuestion } from "@/lib/interview/types";
 import type { InterviewDifficulty } from "@/lib/interview/constants";
 import type { InterviewMode } from "@/lib/supabase/database.types";
@@ -23,9 +23,10 @@ export async function generateFollowUpQuestion(params: {
   const prompt = buildGenerateFollowUpPrompt(params);
   const result = await completeWithFallback(prompt, 1024, {
     userId: params.userId,
+    jsonMode: true,
   });
-  const parsed = questionSchema.parse(
-    JSON.parse(extractJsonObject(result.text))
+  const parsed = parseJsonObject(result.text, (value) =>
+    questionSchema.parse(value)
   );
 
   return {
