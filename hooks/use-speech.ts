@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   filterEnglishVoices,
-  getDefaultVoiceNameFromEnv,
+  getDefaultVoiceName,
   getStoredTtsMuted,
   getStoredVoiceName,
   resolveSpeechVoice,
@@ -87,19 +87,12 @@ export function useSpeechVoices() {
       setVoices(next);
 
       const stored = getStoredVoiceName();
-      const envDefault = getDefaultVoiceNameFromEnv();
       if (stored) {
         setSelectedNameState(stored);
         return;
       }
-      if (envDefault) {
-        const match = resolveSpeechVoice(next, envDefault);
-        if (match) {
-          setSelectedNameState(match.name);
-          return;
-        }
-      }
-      setSelectedNameState("");
+      const match = resolveSpeechVoice(next, getDefaultVoiceName());
+      setSelectedNameState(match?.name ?? "");
     };
 
     refresh();

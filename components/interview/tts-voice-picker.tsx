@@ -28,7 +28,6 @@ export function TtsVoicePicker({ className }: { className?: string }) {
           onChange={(e) => setSelectedName(e.target.value)}
           className="flex h-9 min-w-0 flex-1 rounded-lg border border-input bg-[var(--nr-surface-container)] px-3 py-1 text-sm outline-none focus-visible:border-primary/50 focus-visible:ring-3 focus-visible:ring-ring/40"
         >
-          <option value="">Browser default</option>
           {voices.map((voice) => (
             <option key={`${voice.name}-${voice.lang}`} value={voice.name}>
               {voice.name}

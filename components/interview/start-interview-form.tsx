@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { TargetRoleCombobox } from "@/components/interview/target-role-combobox";
+import { TtsVoicePicker } from "@/components/interview/tts-voice-picker";
 import {
   DEFAULT_TARGET_ROLE,
   DIFFICULTY_LABELS,
@@ -210,6 +211,10 @@ export function StartInterviewForm({
           />
           Adaptive follow-ups (probe weak or vague answers)
         </label>
+
+        {inputMode !== "text" ? (
+          <TtsVoicePicker />
+        ) : null}
 
         <p className="text-xs text-muted-foreground">
           Difficulty adjusts from your last few session scores (

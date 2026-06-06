@@ -1,12 +1,17 @@
 export const TTS_VOICE_STORAGE_KEY = "nextround-tts-voice";
 export const TTS_MUTE_STORAGE_KEY = "nextround-tts-muted";
 export const TTS_LANG = "en-US";
+export const DEFAULT_TTS_VOICE = "Daniel";
 export const TTS_PREVIEW_TEXT =
   "Hello, I'll be your interviewer today. Let's begin with your first question.";
 
 export function getDefaultVoiceNameFromEnv(): string | null {
   const name = process.env.NEXT_PUBLIC_TTS_VOICE?.trim();
   return name || null;
+}
+
+export function getDefaultVoiceName(): string {
+  return getDefaultVoiceNameFromEnv() ?? DEFAULT_TTS_VOICE;
 }
 
 export function getStoredVoiceName(): string | null {
@@ -76,7 +81,7 @@ export function resolveSpeechVoice(
   const wanted =
     preferredName?.trim() ||
     getStoredVoiceName() ||
-    getDefaultVoiceNameFromEnv();
+    getDefaultVoiceName();
 
   if (wanted) {
     const exact = english.find((v) => v.name === wanted);
