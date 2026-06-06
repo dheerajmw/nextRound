@@ -16,45 +16,103 @@ const serverSchema = z.object({
 export type PublicEnv = z.infer<typeof publicSchema>;
 export type ServerEnv = z.infer<typeof serverSchema>;
 
+function isLocalhostHost(hostname: string): boolean {
+  return hostname === "localhost" || hostname === "127.0.0.1";
+}
+
+function isLocalhostUrl(url: string): boolean {
+  try {
+    return isLocalhostHost(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
+function normalizeOrigin(url: string): string {
+  return url.replace(/\/$/, "");
+}
+
+/** Vercel-provided deployment URL (never localhost). */
+function getVercelAppUrl(): string | null {
+  if (!process.env.VERCEL) {
+    return null;
+  }
+
+  if (process.env.VERCEL_ENV === "production") {
+    const productionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+    if (productionUrl) {
+      return normalizeOrigin(
+        productionUrl.startsWith("http")
+          ? productionUrl
+          : `https://${productionUrl}`
+      );
+    }
+  }
+
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (vercelUrl) {
+    return normalizeOrigin(`https://${vercelUrl}`);
+  }
+
+  return null;
+}
+
 /** Resolve the public app URL for auth redirects (prefers the active request origin). */
 export function getAppUrl(origin?: string | null): string {
   if (origin) {
     try {
       const url = new URL(origin);
       if (url.protocol === "http:" || url.protocol === "https:") {
-        return url.origin;
+        if (!isLocalhostHost(url.hostname) || !process.env.VERCEL) {
+          return url.origin;
+        }
       }
     } catch {
       // fall through
     }
   }
 
+  const vercelAppUrl = getVercelAppUrl();
+  if (vercelAppUrl) {
+    return vercelAppUrl;
+  }
+
   const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
   const isStalePreviewUrl = configured?.includes("-projects.vercel.app") ?? false;
 
-  if (process.env.VERCEL_ENV === "production") {
-    const productionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
-    if (productionUrl) {
-      return productionUrl.startsWith("http")
-        ? productionUrl.replace(/\/$/, "")
-        : `https://${productionUrl.replace(/\/$/, "")}`;
+  if (configured && !isStalePreviewUrl && !isLocalhostUrl(configured)) {
+    return normalizeOrigin(configured);
+  }
+
+  if (configured && !process.env.VERCEL) {
+    return normalizeOrigin(configured);
+  }
+
+  if (origin && isLocalhostUrl(origin)) {
+    try {
+      return new URL(origin).origin;
+    } catch {
+      // fall through
     }
   }
 
-  if (configured && !isStalePreviewUrl) {
-    return configured.replace(/\/$/, "");
-  }
-
-  const vercelUrl = process.env.VERCEL_URL?.trim();
-  if (vercelUrl) {
-    return `https://${vercelUrl.replace(/\/$/, "")}`;
-  }
-
-  if (configured) {
-    return configured.replace(/\/$/, "");
-  }
-
   return "http://localhost:3000";
+}
+
+/** Canonical URL for auth redirects (OAuth callback, email links). */
+export function getAuthAppUrl(origin?: string | null): string {
+  const authSiteUrl = process.env.AUTH_SITE_URL?.trim();
+  if (authSiteUrl && !isLocalhostUrl(authSiteUrl)) {
+    return normalizeOrigin(authSiteUrl);
+  }
+
+  return getAppUrl(origin);
+}
+
+export function getOAuthCallbackUrl(origin?: string | null, next = "/"): string {
+  const callback = new URL("/auth/callback", getAuthAppUrl(origin));
+  callback.searchParams.set("next", next);
+  return callback.toString();
 }
 
 export function getPublicEnv(origin?: string | null): PublicEnv {

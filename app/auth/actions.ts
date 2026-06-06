@@ -14,7 +14,7 @@ import {
 } from "@/lib/auth/paths";
 import { getRequestOrigin } from "@/lib/auth/request-origin";
 import { createClient } from "@/lib/supabase/server";
-import { getAppUrl } from "@/lib/env";
+import { getAuthAppUrl } from "@/lib/env";
 import { verifySupabaseConnection } from "@/lib/supabase/verify-connection";
 
 export async function signInWithEmail(formData: FormData) {
@@ -76,7 +76,7 @@ export async function signUpWithEmail(formData: FormData) {
 
   try {
     const origin = await getRequestOrigin();
-    const appUrl = getAppUrl(origin);
+    const appUrl = getAuthAppUrl(origin);
     const supabase = await createClient();
 
     const { data, error } = await supabase.auth.signUp({

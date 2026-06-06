@@ -4,10 +4,10 @@ import {
   mapSupabaseAuthError,
   supabaseConfigError,
 } from "@/lib/auth/format-auth-error";
-import { createClient } from "@/lib/supabase/server";
-import { getAppUrl } from "@/lib/env";
-
 import { safeAuthenticatedPath } from "@/lib/auth/paths";
+import { getRequestOrigin } from "@/lib/auth/request-origin";
+import { getOAuthCallbackUrl } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getGoogleOAuthRedirectUrl(
   nextPath?: string | null,
@@ -20,15 +20,14 @@ export async function getGoogleOAuthRedirectUrl(
   const next = safeAuthenticatedPath(nextPath);
 
   try {
-    const appUrl = getAppUrl(origin);
+    const requestOrigin = origin ?? (await getRequestOrigin());
     const supabase = await createClient();
-    const callbackUrl = new URL("/auth/callback", appUrl);
-    callbackUrl.searchParams.set("next", next);
+    const callbackUrl = getOAuthCallbackUrl(requestOrigin, next);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: callbackUrl.toString(),
+        redirectTo: callbackUrl,
         queryParams: {
           access_type: "offline",
           prompt: "consent",

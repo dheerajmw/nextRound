@@ -9,8 +9,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const next = searchParams.get("next");
 
-  const { origin } = new URL(request.url);
-  const result = await getGoogleOAuthRedirectUrl(next, origin);
+  const result = await getGoogleOAuthRedirectUrl(next);
 
   if ("url" in result) {
     return NextResponse.redirect(result.url);

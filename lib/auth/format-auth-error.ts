@@ -61,8 +61,19 @@ export function mapSupabaseAuthError(message: string): string {
       "NEXT_PUBLIC_SUPABASE_URL (Supabase → Settings → API). " +
       "Use the Legacy anon key (eyJ…) if the publishable key fails. " +
       "On Vercel: set env vars for Production and Preview, set NEXT_PUBLIC_APP_URL to " +
-      "https://next-round-zeta.vercel.app (not a preview URL), then redeploy. " +
+      "https://next-round-zeta.vercel.app (not localhost), then redeploy. " +
       "Local: run npm run check:env and restart npm run dev."
+    );
+  }
+
+  if (
+    lower.includes("redirect") &&
+    (lower.includes("localhost") || lower.includes("not allowed"))
+  ) {
+    return (
+      "Sign-in redirect URL mismatch. In Supabase → Authentication → URL Configuration, " +
+      "set Site URL to your production app (e.g. https://next-round-zeta.vercel.app) and add " +
+      "https://next-round-zeta.vercel.app/auth/callback to Redirect URLs."
     );
   }
 
