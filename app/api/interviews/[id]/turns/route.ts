@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/api/auth";
 import { hasLlmKeys } from "@/lib/env";
-import { formatJsonParseError } from "@/lib/interview/parse-json";
+import { formatLlmApiError } from "@/lib/llm/format-api-error";
+import { getLlmErrorStatus } from "@/lib/llm/client";
 import { processAnswerSubmission } from "@/lib/interview/process-answer";
 import { getSessionForUser } from "@/lib/interview/session-access";
 
@@ -89,10 +90,10 @@ export async function POST(request: Request, context: RouteContext) {
     if (error instanceof Error && error.name === "OrgLlmCapExceededError") {
       return NextResponse.json({ error: error.message }, { status: 429 });
     }
-    const message =
-      error instanceof Error
-        ? formatJsonParseError(error)
-        : "Failed to process answer";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const message = formatLlmApiError(error);
+    return NextResponse.json(
+      { error: message },
+      { status: getLlmErrorStatus(error) }
+    );
   }
 }

@@ -1,7 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { speakText, stopSpeaking, useTtsMute } from "@/hooks/use-speech";
+import {
+  getTtsMuted,
+  speakText,
+  stopSpeaking,
+  subscribeTtsMuteChange,
+  useTtsMute,
+} from "@/hooks/use-speech";
 import { Volume2 } from "lucide-react";
 import { useEffect } from "react";
 
@@ -15,11 +21,21 @@ export function QuestionSpeaker({
   const { muted } = useTtsMute();
 
   useEffect(() => {
-    if (autoSpeak && question && !muted) {
-      speakText(question);
-    }
-    return () => stopSpeaking();
-  }, [question, autoSpeak, muted]);
+    if (!autoSpeak || !question) return;
+
+    const trySpeak = () => {
+      if (!getTtsMuted()) {
+        speakText(question);
+      }
+    };
+
+    trySpeak();
+    const unsubscribe = subscribeTtsMuteChange(trySpeak);
+    return () => {
+      unsubscribe();
+      stopSpeaking();
+    };
+  }, [question, autoSpeak]);
 
   useEffect(() => {
     if (muted) {

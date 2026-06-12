@@ -37,6 +37,15 @@ export function setStoredVoiceName(name: string | null): void {
   }
 }
 
+export function resetStoredVoiceToDefault(
+  voices: SpeechSynthesisVoice[] = []
+): string {
+  const match = resolveSpeechVoice(voices, getDefaultVoiceName());
+  const name = match?.name ?? getDefaultVoiceName();
+  setStoredVoiceName(name);
+  return name;
+}
+
 export function getStoredTtsMuted(): boolean {
   if (typeof window === "undefined") return false;
   try {

@@ -329,7 +329,7 @@
   inset: 0 auto 0 0;
   z-index: 40;
   width: var(--nr-sidebar-width);
-  display: flex;
+  display: none;
   flex-direction: column;
   background: rgba(19, 19, 20, 0.88);
   backdrop-filter: blur(16px);
@@ -348,16 +348,47 @@
   top: 0;
   right: 0;
   left: var(--nr-sidebar-width);
-  z-index: 30;
+  z-index: 50;
   height: var(--nr-header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 0 var(--nr-gutter);
   background: rgba(19, 19, 20, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--nr-border-subtle);
+}
+
+.nr-app-mobile-nav {
+  max-height: calc(100dvh - var(--nr-header-height));
+  overflow-y: auto;
+  border-bottom: 1px solid var(--nr-border-subtle);
+  background: rgba(19, 19, 20, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --nr-gutter: 16px;
+    --nr-header-height: 56px;
+  }
+
+  .nr-app-main {
+    margin-left: 0;
+  }
+
+  .nr-app-topbar {
+    left: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nr-app-sidebar {
+    display: flex;
+  }
 }
 
 .nr-pill {

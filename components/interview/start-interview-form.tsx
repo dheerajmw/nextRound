@@ -13,6 +13,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { TargetRoleCombobox } from "@/components/interview/target-role-combobox";
 import { TtsVoicePicker } from "@/components/interview/tts-voice-picker";
+import { markInterviewSessionForUnmute, prepareInterviewSetupTts, unmuteInterviewTts } from "@/hooks/use-speech";
 import {
   DEFAULT_TARGET_ROLE,
   DIFFICULTY_LABELS,
@@ -67,6 +68,10 @@ export function StartInterviewForm({
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    prepareInterviewSetupTts();
+  }, []);
+
   async function handleStart() {
     setLoading(true);
     setError(null);
@@ -93,6 +98,8 @@ export function StartInterviewForm({
         return;
       }
 
+      unmuteInterviewTts();
+      markInterviewSessionForUnmute(data.session.id);
       router.push(`/interviews/${data.session.id}`);
       router.refresh();
     } catch {
@@ -202,6 +209,10 @@ export function StartInterviewForm({
           </div>
         </div>
 
+        {inputMode !== "text" ? (
+          <TtsVoicePicker />
+        ) : null}
+
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
@@ -211,10 +222,6 @@ export function StartInterviewForm({
           />
           Adaptive follow-ups (probe weak or vague answers)
         </label>
-
-        {inputMode !== "text" ? (
-          <TtsVoicePicker />
-        ) : null}
 
         <p className="text-xs text-muted-foreground">
           Difficulty adjusts from your last few session scores (

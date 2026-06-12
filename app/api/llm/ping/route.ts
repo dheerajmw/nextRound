@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { hasLlmKeys } from "@/lib/env";
 import {
   completeWithFallback,
+  formatLlmUserError,
+  getLlmErrorStatus,
   LLM_PING_PROMPT,
 } from "@/lib/llm/client";
 import { createClient } from "@/lib/supabase/server";
@@ -36,8 +38,10 @@ export async function GET() {
       message: result.text,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "LLM ping failed";
-    return NextResponse.json({ ok: false, error: message }, { status: 502 });
+    const message = formatLlmUserError(error);
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: getLlmErrorStatus(error) }
+    );
   }
 }

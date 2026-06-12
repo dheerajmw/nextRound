@@ -10,7 +10,8 @@ import {
 } from "@/lib/interview/constants";
 import { getSessionQuestionLimit } from "@/lib/interview/question-limit";
 import { SESSION_SELECT } from "@/lib/interview/session-access";
-import { formatJsonParseError } from "@/lib/interview/parse-json";
+import { formatLlmApiError } from "@/lib/llm/format-api-error";
+import { getLlmErrorStatus } from "@/lib/llm/client";
 import { generateInterviewQuestion } from "@/lib/interview/generate-question";
 import { getExcludedQuestionsForNewSession } from "@/lib/interview/excluded-questions";
 import { normalizeSession } from "@/lib/interview/normalize-session";
@@ -219,10 +220,10 @@ export async function POST(request: Request) {
     if (error instanceof Error && error.name === "OrgLlmCapExceededError") {
       return NextResponse.json({ error: error.message }, { status: 429 });
     }
-    const message =
-      error instanceof Error
-        ? formatJsonParseError(error)
-        : "Question generation failed";
-    return NextResponse.json({ error: message }, { status: 502 });
+    const message = formatLlmApiError(error);
+    return NextResponse.json(
+      { error: message },
+      { status: getLlmErrorStatus(error) }
+    );
   }
 }

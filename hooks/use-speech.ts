@@ -6,6 +6,7 @@ import {
   getDefaultVoiceName,
   getStoredTtsMuted,
   getStoredVoiceName,
+  resetStoredVoiceToDefault,
   resolveSpeechVoice,
   setStoredTtsMuted,
   setStoredVoiceName,
@@ -16,9 +17,22 @@ import {
 export { TTS_PREVIEW_TEXT };
 
 const ttsMuteListeners = new Set<() => void>();
+const ttsVoiceListeners = new Set<() => void>();
+const TTS_UNMUTE_SESSION_KEY = "nextround-tts-unmute-session";
 
 function notifyTtsMuteChange() {
   ttsMuteListeners.forEach((listener) => listener());
+}
+
+export function subscribeTtsMuteChange(listener: () => void): () => void {
+  ttsMuteListeners.add(listener);
+  return () => {
+    ttsMuteListeners.delete(listener);
+  };
+}
+
+function notifyTtsVoiceChange() {
+  ttsVoiceListeners.forEach((listener) => listener());
 }
 
 export function getTtsMuted(): boolean {
@@ -33,8 +47,47 @@ export function setTtsMuted(muted: boolean): void {
   notifyTtsMuteChange();
 }
 
+export function unmuteInterviewTts(): void {
+  setStoredTtsMuted(false);
+  notifyTtsMuteChange();
+}
+
+export function markInterviewSessionForUnmute(sessionId: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(TTS_UNMUTE_SESSION_KEY, sessionId);
+  } catch {
+    // ignore private mode / quota
+  }
+}
+
+export function consumeInterviewSessionUnmute(sessionId: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    if (sessionStorage.getItem(TTS_UNMUTE_SESSION_KEY) !== sessionId) {
+      return false;
+    }
+    sessionStorage.removeItem(TTS_UNMUTE_SESSION_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function prepareInterviewSetupTts(): void {
+  resetStoredVoiceToDefault(loadVoices());
+  unmuteInterviewTts();
+  notifyTtsVoiceChange();
+}
+
+export function resetVoiceToDefault(): string {
+  const name = resetStoredVoiceToDefault(loadVoices());
+  notifyTtsVoiceChange();
+  return name;
+}
+
 export function useTtsMute() {
-  const [muted, setMutedState] = useState(false);
+  const [muted, setMutedState] = useState(() => getTtsMuted());
 
   useEffect(() => {
     const sync = () => setMutedState(getTtsMuted());
@@ -79,32 +132,41 @@ export function useSpeechVoices() {
     setSupported(typeof window !== "undefined" && !!window.speechSynthesis);
   }, []);
 
+  const refreshVoices = useCallback(() => {
+    const next = filterEnglishVoices(loadVoices());
+    setVoices(next);
+
+    const stored = getStoredVoiceName();
+    if (stored) {
+      const match = resolveSpeechVoice(next, stored);
+      const name = match?.name ?? stored;
+      if (match && name !== stored) {
+        setStoredVoiceName(name);
+      }
+      setSelectedNameState(name);
+      return;
+    }
+
+    const match = resolveSpeechVoice(next, getDefaultVoiceName());
+    setSelectedNameState(match?.name ?? getDefaultVoiceName());
+  }, []);
+
   useEffect(() => {
     if (!supported) return;
 
-    const refresh = () => {
-      const next = filterEnglishVoices(loadVoices());
-      setVoices(next);
-
-      const stored = getStoredVoiceName();
-      if (stored) {
-        setSelectedNameState(stored);
-        return;
-      }
-      const match = resolveSpeechVoice(next, getDefaultVoiceName());
-      setSelectedNameState(match?.name ?? "");
-    };
-
-    refresh();
-    window.speechSynthesis.addEventListener("voiceschanged", refresh);
+    refreshVoices();
+    ttsVoiceListeners.add(refreshVoices);
+    window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
     return () => {
-      window.speechSynthesis.removeEventListener("voiceschanged", refresh);
+      ttsVoiceListeners.delete(refreshVoices);
+      window.speechSynthesis.removeEventListener("voiceschanged", refreshVoices);
     };
-  }, [supported]);
+  }, [supported, refreshVoices]);
 
   const setSelectedName = useCallback((name: string) => {
     setStoredVoiceName(name || null);
     setSelectedNameState(name);
+    notifyTtsVoiceChange();
   }, []);
 
   return { supported, voices, selectedName, setSelectedName };

@@ -11,8 +11,7 @@ export type CompletionResult = {
 
 const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash";
 /** OpenRouter retired gemma-2-9b-it:free; router picks any current free model. */
-const DEFAULT_OPENROUTER_MODEL =
-  process.env.OPENROUTER_MODEL?.trim() || "openrouter/free";
+const DEFAULT_OPENROUTER_MODEL = "openrouter/free";
 
 export type CompleteWithFallbackOptions = {
   /** Enforces per-organization daily LLM cap (Phase 7). */
@@ -21,9 +20,116 @@ export type CompleteWithFallbackOptions = {
   jsonMode?: boolean;
 };
 
+function getGeminiModel(): string {
+  return process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
+}
+
+function getOpenRouterModel(): string {
+  return process.env.OPENROUTER_MODEL?.trim() || DEFAULT_OPENROUTER_MODEL;
+}
+
+function summarizeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+function truncate(text: string, max = 240): string {
+  if (text.length <= max) return text;
+  return `${text.slice(0, max)}…`;
+}
+
+export function isRateLimitError(error: unknown): boolean {
+  const message = summarizeError(error).toLowerCase();
+  return (
+    message.includes("429") ||
+    message.includes("rate limit") ||
+    message.includes("quota exceeded") ||
+    message.includes("resource_exhausted")
+  );
+}
+
+export class LlmUnavailableError extends Error {
+  readonly statusCode: number;
+  readonly userMessage: string;
+  readonly providerErrors: string[];
+
+  constructor(providerErrors: string[], statusCode = 503) {
+    const userMessage = buildLlmUserMessage(providerErrors);
+    super(userMessage);
+    this.name = "LlmUnavailableError";
+    this.statusCode = statusCode;
+    this.userMessage = userMessage;
+    this.providerErrors = providerErrors;
+  }
+}
+
+function buildLlmUserMessage(errors: string[]): string {
+  const openRouterRateLimited = errors.some(
+    (entry) =>
+      entry.startsWith("OpenRouter:") && isRateLimitError({ message: entry })
+  );
+  const geminiFailed = errors.some((entry) => entry.startsWith("Gemini:"));
+
+  if (openRouterRateLimited && geminiFailed) {
+    return (
+      "AI is temporarily unavailable. Gemini failed and OpenRouter's free daily limit " +
+      "(50 requests/day) is exhausted. Add a valid GEMINI_API_KEY in Vercel environment " +
+      "settings (recommended), or add credits at openrouter.ai/settings/credits."
+    );
+  }
+
+  if (openRouterRateLimited) {
+    return (
+      "OpenRouter free daily limit reached (50 requests/day on free models). " +
+      "Set GEMINI_API_KEY as your primary provider in Vercel, add credits on OpenRouter, " +
+      "or try again after the limit resets."
+    );
+  }
+
+  if (geminiFailed && errors.length === 1) {
+    return `Gemini failed: ${errors[0].replace(/^Gemini:\s*/, "")}. Check GEMINI_API_KEY in your environment.`;
+  }
+
+  return `All AI providers failed: ${errors.join(" | ")}`;
+}
+
+export function formatLlmUserError(error: unknown): string {
+  if (error instanceof LlmUnavailableError) {
+    return error.userMessage;
+  }
+
+  const message = summarizeError(error);
+  if (message.includes("OpenRouter error (429)")) {
+    return buildLlmUserMessage([`OpenRouter: ${message}`]);
+  }
+
+  if (message.includes("GEMINI_API_KEY is not configured")) {
+    return "GEMINI_API_KEY is not configured. Add it in Vercel environment settings.";
+  }
+
+  if (isRateLimitError(error)) {
+    return buildLlmUserMessage([message]);
+  }
+
+  return message;
+}
+
+export function getLlmErrorStatus(error: unknown): number {
+  if (error instanceof LlmUnavailableError) {
+    return error.statusCode;
+  }
+  if (error instanceof Error && error.name === "OrgLlmCapExceededError") {
+    return 429;
+  }
+  if (isRateLimitError(error)) {
+    return 429;
+  }
+  return 502;
+}
+
 export async function completeWithGemini(
   prompt: string,
-  model = DEFAULT_GEMINI_MODEL,
+  model = getGeminiModel(),
   maxOutputTokens = 256,
   jsonMode = false
 ): Promise<CompletionResult> {
@@ -52,7 +158,7 @@ export async function completeWithGemini(
 
 export async function completeWithOpenRouter(
   prompt: string,
-  model = DEFAULT_OPENROUTER_MODEL,
+  model = getOpenRouterModel(),
   maxTokens = 256
 ): Promise<CompletionResult> {
   const { OPENROUTER_API_KEY } = getServerEnv();
@@ -92,7 +198,7 @@ export async function completeWithOpenRouter(
   return { provider: "openrouter", text, model };
 }
 
-/** Primary Gemini with OpenRouter fallback (Phase 0 ping / future orchestration). */
+/** Primary Gemini with OpenRouter fallback; surfaces actionable errors when both fail. */
 export async function completeWithFallback(
   prompt: string,
   maxTokens = 256,
@@ -105,26 +211,59 @@ export async function completeWithFallback(
 
   const { GEMINI_API_KEY, OPENROUTER_API_KEY } = getServerEnv();
   const jsonMode = options?.jsonMode ?? false;
+  const errors: string[] = [];
+
+  if (!GEMINI_API_KEY && !OPENROUTER_API_KEY) {
+    throw new Error(
+      "No LLM API keys configured (GEMINI_API_KEY or OPENROUTER_API_KEY)"
+    );
+  }
 
   if (GEMINI_API_KEY) {
     try {
       return await completeWithGemini(
         prompt,
-        DEFAULT_GEMINI_MODEL,
+        getGeminiModel(),
         maxTokens,
         jsonMode
       );
     } catch (error) {
-      if (!OPENROUTER_API_KEY) throw error;
-      console.warn("[llm] Gemini failed, falling back to OpenRouter", error);
+      errors.push(`Gemini: ${truncate(summarizeError(error))}`);
+      console.warn("[llm] Gemini failed", error);
     }
   }
 
   if (OPENROUTER_API_KEY) {
-    return completeWithOpenRouter(prompt, DEFAULT_OPENROUTER_MODEL, maxTokens);
+    try {
+      return await completeWithOpenRouter(
+        prompt,
+        getOpenRouterModel(),
+        maxTokens
+      );
+    } catch (error) {
+      errors.push(`OpenRouter: ${truncate(summarizeError(error))}`);
+      console.warn("[llm] OpenRouter failed", error);
+    }
   }
 
-  throw new Error("No LLM API keys configured (GEMINI_API_KEY or OPENROUTER_API_KEY)");
+  if (GEMINI_API_KEY && OPENROUTER_API_KEY) {
+    try {
+      return await completeWithGemini(
+        prompt,
+        getGeminiModel(),
+        maxTokens,
+        jsonMode
+      );
+    } catch (error) {
+      errors.push(`Gemini (retry): ${truncate(summarizeError(error))}`);
+      console.warn("[llm] Gemini retry failed", error);
+    }
+  }
+
+  const statusCode = errors.some((entry) => isRateLimitError({ message: entry }))
+    ? 429
+    : 503;
+  throw new LlmUnavailableError(errors, statusCode);
 }
 
 export const LLM_PING_PROMPT =

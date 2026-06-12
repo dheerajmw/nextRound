@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CancelledInterview } from "@/components/interview/cancelled-interview";
 import { CompletedInterview } from "@/components/interview/completed-interview";
 import { InterviewTracker } from "@/components/interview/interview-tracker";
+import { useInterviewNavigationGuard } from "@/components/interview/interview-navigation-guard";
 import { QuestionSpeaker } from "@/components/interview/question-speaker";
 import { TtsMuteButton } from "@/components/interview/tts-mute-button";
 import { VoiceAnswerControls } from "@/components/interview/voice-answer-controls";
@@ -32,6 +33,7 @@ import type {
   SessionEvaluationSummary,
   TurnEvaluationDto,
 } from "@/lib/evaluation/types";
+import { consumeInterviewSessionUnmute, unmuteInterviewTts } from "@/hooks/use-speech";
 import { AnalyticsEvents } from "@/lib/analytics/events";
 import { trackEvent } from "@/components/providers/posthog-provider";
 
@@ -41,6 +43,7 @@ export function InterviewRoom({
   initial: InterviewSessionDetail;
 }) {
   const router = useRouter();
+  const { setActiveSessionId } = useInterviewNavigationGuard();
   const [session, setSession] = useState(initial);
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +73,18 @@ export function InterviewRoom({
   const voiceOnly = session.input_mode === "voice";
   const showVoice = session.input_mode === "voice" || session.input_mode === "both";
   const showText = session.input_mode === "text" || session.input_mode === "both";
+
+  useEffect(() => {
+    if (session.status === "in_progress") {
+      if (consumeInterviewSessionUnmute(session.id)) {
+        unmuteInterviewTts();
+      }
+      setActiveSessionId(session.id);
+      return () => setActiveSessionId(null);
+    }
+
+    setActiveSessionId(null);
+  }, [session.id, session.status, setActiveSessionId]);
 
   const submitAnswer = useCallback(async () => {
     if (!openTurn || answer.trim().length < 10) return;
